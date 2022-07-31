@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
 
 const add = (model: any) => async (req: Request, res: Response) => {
   if (!req.body) res.status(400).json({ message: "No name specified" });
@@ -7,7 +6,7 @@ const add = (model: any) => async (req: Request, res: Response) => {
     const { body } = req;
     const data = await model.create({
       ...body,
-      createdBy: new mongoose.Types.ObjectId(),
+      createdBy: req.headers.authorization,
     });
     res.status(200).json({ message: "data created" });
   } catch (e) {
@@ -18,7 +17,7 @@ const add = (model: any) => async (req: Request, res: Response) => {
 const getAll = (model: any) => async (req: Request, res: Response) => {
   try {
     const data = await model
-      .find({}, { createdBy: 0, password: 0, username: 0 })
+      .find({}, { password: 0, username: 0 })
       .lean()
       .exec();
     res.status(200).json({ data });
@@ -44,11 +43,16 @@ const getOne = (model: any) => async (req: Request, res: Response) => {
     if (!id) {
       throw Error("no id provided");
     }
-    const dbResponse = await model.findById(id, {
-      createdBy: 0,
-      password: 0,
-      username: 0,
-    });
+
+    const dbResponse = await model
+      .findById(id, {
+        createdBy: 0,
+        password: 0,
+        username: 0,
+      })
+      .lean()
+      .exec();
+
     res.status(200).json({ data: dbResponse });
   } catch (e) {
     res.status(400).send(e);

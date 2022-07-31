@@ -1,34 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
+import { userAndAdminSchema } from "../utils";
+import { ISignUpSchema } from "../utils/ts-types";
 
-const adminSchema = new mongoose.Schema(
+const adminSchema: Schema<ISignUpSchema> = new mongoose.Schema(
+  userAndAdminSchema,
   {
-    username: {
-      type: String,
-      required: true,
-      minLength: 4,
-      maxLength: 20,
-      unique: true,
-    },
-    name: {
-      type: String,
-      required: true,
-      minLength: 5,
-      maxLength: 40,
-    },
-    email: {
-      type: String,
-      required: true,
-      minLength: 10,
-      unique: true,
-    },
-    password: {
-      type: String,
-      minLength: 8,
-      required: true,
-    },
-  },
-  { timestamps: true }
+    timestamps: true,
+  }
 );
 
 adminSchema.pre("save", function (next) {
@@ -37,7 +16,6 @@ adminSchema.pre("save", function (next) {
   bcrypt.hash(this.password, 10, (err, hash) => {
     if (err) return next(err);
     this.password = hash;
-    console.log(hash, this.password, "lol", this);
     next();
   });
 });
@@ -51,17 +29,14 @@ adminSchema.pre("updateOne", function (next) {
   });
 });
 
-// eslint-disable-next-line prettier/prettier
-adminSchema.methods.checkPassword = async function (
-  password: string,
-  hash: string
-) {
+adminSchema.methods.checkPassword = async function (password: string) {
+  const hashedPassword = this.password;
   try {
-    const compare = await bcrypt.compare(password, hash);
+    const compare = await bcrypt.compare(password, hashedPassword);
     return compare;
   } catch (e) {
     return false;
   }
 };
 
-export const Admin = mongoose.model("admin", adminSchema);
+export const Admin = mongoose.model<ISignUpSchema>("admin", adminSchema);
