@@ -6,6 +6,10 @@ const router = Router();
 
 router.use(protect);
 router.route("/").get(controller.getAll).post(controller.add);
-router.route("/:id").get(controller.getOne).delete(controller.remove);
+router
+  .route("/:id")
+  .get(controller.getOne)
+  .delete(controller.remove)
+  .patch(controller.update);
 
 export default router;

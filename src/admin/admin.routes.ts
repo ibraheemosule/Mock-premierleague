@@ -7,7 +7,10 @@ router.post("/signup", controller.signUp);
 router.post("/signin", controller.signIn);
 router.use(controller.protect);
 router.get("/", controller.getAll);
-router.delete("/:id", controller.remove);
-router.get("/:id", controller.getOne);
+router
+  .route("/:id")
+  .delete(controller.remove)
+  .get(controller.getOne)
+  .patch(controller.update);
 
 export default router;

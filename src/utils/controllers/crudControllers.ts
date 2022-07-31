@@ -59,9 +59,25 @@ const getOne = (model: any) => async (req: Request, res: Response) => {
   }
 };
 
+const update = (model: any) => async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    if (!id) throw new Error("Cannot Find Data");
+    const data = await model
+      .findByIdAndUpdate(id, req.body, { new: true })
+      .select("-createdBy -password")
+      .exec();
+    if (!data) throw new Error("No Data Found");
+    res.status(201).json({ message: "data updated", data });
+  } catch (e) {
+    res.status(400).send(e);
+  }
+};
+
 export const crudControllers = (model: any) => ({
   add: add(model),
   getAll: getAll(model),
   remove: remove(model),
   getOne: getOne(model),
+  update: update(model),
 });
