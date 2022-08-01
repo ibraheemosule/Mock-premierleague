@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { Model } from "mongoose";
 import jwt from "jsonwebtoken";
 import { ISignUpSchema, ISignIn, IToken } from "../ts-types";
+import { Admin } from "../../admin/admin.model";
+import { dotsInGmail } from "../../utils";
 
 const generateToken = (user: string): string => {
-  return jwt.sign({ id: user }, "secret-token-id", { expiresIn: "3h" });
+  return jwt.sign({ id: user }, "secret-token-id", { expiresIn: "24h" });
 };
 
 const verifyToken = (token: string): Promise<IToken> =>
@@ -32,7 +34,10 @@ const signUp = (model: Model<ISignUpSchema>) => async (req: any, res: any) => {
     if (!!reqFieldEmpty)
       return res.status(400).json({ message: `${reqFieldEmpty} is required` });
 
-    const admin = await model.create(body);
+    const userDetails = dotsInGmail(body);
+    console.log(userDetails);
+
+    const admin = await model.create(userDetails);
     if (!admin) throw new Error();
     const token = generateToken(admin?.id);
     res.status(200).json({ token });
@@ -45,9 +50,13 @@ const signIn =
   (model: Model<ISignUpSchema>) => async (req: ISignIn, res: Response) => {
     if (!req.body.username || !req.body.password) return res.status(400).end();
 
+    const cred = req.body.username.toLowerCase();
+    const userDetails = dotsInGmail(req.body);
+    console.log(userDetails);
+
     try {
       const user = await model
-        .findOne({ username: req.body.username })
+        .findOne({ $or: [{ username: cred }, { email: cred }] })
         .select("username password id")
         .exec();
       const checkPassword = await user?.checkPassword(req.body.password);
@@ -56,7 +65,7 @@ const signIn =
       const token = generateToken(user?.id);
       res.status(200).json({ token });
     } catch (e) {
-      res.status(401).end();
+      res.status(401).send("Invalid username or password");
     }
   };
 
@@ -76,6 +85,20 @@ export const protect = async (
     next();
   } catch (e) {
     res.status(400).json(e);
+  }
+};
+
+export const verifyAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const admin = await Admin.findById(req.headers.authorization).exec();
+    if (!admin?.id) throw new Error("Unauthorized");
+    next();
+  } catch (e) {
+    res.status(401).send(e);
   }
 };
 

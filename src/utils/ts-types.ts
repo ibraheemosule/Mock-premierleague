@@ -21,20 +21,9 @@ export interface ISignIn extends Request {
   };
 }
 
-// export interface IProtectRoutes extends Request {
-//   user: {
-//     id: string;
-//   };
-//   headers: {
-//     authorization: string;
-//     [key: string | number | symbol]: any;
-//   };
-// }
-
-// export type ProtectRoutesType = IProtectRoutes & {
-//   headers: { authorization: string };
-//   user: { id: string };
-// };
+export interface IBody {
+  [key: string]: string;
+}
 
 export interface IToken {
   id: string;

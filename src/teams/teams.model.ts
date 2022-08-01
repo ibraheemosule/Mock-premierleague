@@ -6,6 +6,8 @@ const teamsSchema = new mongoose.Schema(
       type: String,
       required: true,
       maxLength: 20,
+      unique: true,
+      lowercase: true,
     },
     createdBy: {
       type: mongoose.SchemaTypes.ObjectId,

@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 
 const add = (model: any) => async (req: Request, res: Response) => {
   if (!req.body) res.status(400).json({ message: "No name specified" });
@@ -37,27 +38,34 @@ const remove = (model: any) => async (req: Request, res: Response) => {
   }
 };
 
-const getOne = (model: any) => async (req: Request, res: Response) => {
-  const id = req.params.id;
-  try {
-    if (!id) {
-      throw Error("no id provided");
+const getOne =
+  (model: any) => async (req: Request, res: Response, next: NextFunction) => {
+    const search = /search/i.test(req.originalUrl);
+    const searchTeam = /teams/i.test(req.originalUrl);
+
+    if (!search) return next();
+
+    const query = req.query.search as string;
+    const queryType = mongoose.Types.ObjectId.isValid(query);
+
+    try {
+      const key = (searchTeam && queryType) || !searchTeam ? "_id" : "name";
+      const dbResponse = await model
+        .findOne(
+          { [key]: query.toLowerCase() },
+          {
+            createdBy: 0,
+            password: 0,
+            username: 0,
+          }
+        )
+        .lean()
+        .exec();
+      res.status(200).json({ data: dbResponse });
+    } catch (e) {
+      res.status(400).send(e);
     }
-
-    const dbResponse = await model
-      .findById(id, {
-        createdBy: 0,
-        password: 0,
-        username: 0,
-      })
-      .lean()
-      .exec();
-
-    res.status(200).json({ data: dbResponse });
-  } catch (e) {
-    res.status(400).send(e);
-  }
-};
+  };
 
 const update = (model: any) => async (req: Request, res: Response) => {
   const id = req.params.id;

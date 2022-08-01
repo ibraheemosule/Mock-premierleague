@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { port } from "./utils";
 import teamRoutes from "./teams/teams.routes";
 import adminRoutes from "./admin/admin.routes";
+import userRoutes from "./user/user.routes";
 import cors from "cors";
 
 const app = express();
@@ -17,7 +18,8 @@ app.use(cors());
 app.use(morgan("dev"));
 
 //routers
-app.use("/admin", adminRoutes);
+app.use("/admins", adminRoutes);
+app.use("/users", userRoutes);
 app.use("/teams", teamRoutes);
 
 export const start = async () => {
