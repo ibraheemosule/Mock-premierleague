@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Fixtures } from "../fixtures/fixtures.model";
 
 const teamsSchema = new mongoose.Schema(
   {
@@ -9,8 +10,12 @@ const teamsSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    fixtures: {
+      type: [{ type: mongoose.Schema.Types.ObjectId }],
+      ref: "fixture",
+    },
     createdBy: {
-      type: mongoose.SchemaTypes.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "admin",
       required: true,
     },
@@ -18,6 +23,15 @@ const teamsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-teamsSchema.index({ admin: 1, name: 1 }, { unique: true });
+teamsSchema.pre("updateOne", async function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
 
-export const Teams = mongoose.model("teams", teamsSchema);
+teamsSchema.post("remove", async function (doc) {
+  await Fixtures.deleteMany({
+    $or: [{ "home.info": doc._id }, { "away.info": doc._id }],
+  });
+});
+
+export const Teams = mongoose.model("team", teamsSchema);

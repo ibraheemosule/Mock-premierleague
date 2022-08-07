@@ -32,7 +32,9 @@ const remove = (model: any) => async (req: Request, res: Response) => {
 
   try {
     const del = await model.findByIdAndRemove(id);
-    res.status(200).json({ data: { message: "removed data", data: del } });
+    res
+      .status(200)
+      .json({ data: { message: "removed data", data: del.toObject() } });
   } catch (e) {
     res.status(400).end();
   }
@@ -41,26 +43,23 @@ const remove = (model: any) => async (req: Request, res: Response) => {
 const getOne =
   (model: any) => async (req: Request, res: Response, next: NextFunction) => {
     const search = /search/i.test(req.originalUrl);
-    const searchTeam = /teams/i.test(req.originalUrl);
 
     if (!search) return next();
 
     const query = req.query.search as string;
-    const queryType = mongoose.Types.ObjectId.isValid(query);
 
     try {
-      const key = (searchTeam && queryType) || !searchTeam ? "_id" : "name";
       const dbResponse = await model
         .findOne(
-          { [key]: query.toLowerCase() },
+          { id: query.toLowerCase() },
           {
             createdBy: 0,
             password: 0,
-            username: 0,
           }
         )
         .lean()
         .exec();
+      if (!dbResponse) throw new Error("No data found");
       res.status(200).json({ data: dbResponse });
     } catch (e) {
       res.status(400).send(e);

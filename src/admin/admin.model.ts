@@ -29,6 +29,11 @@ adminSchema.pre("updateOne", function (next) {
   });
 });
 
+adminSchema.pre("updateOne", async function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
+
 adminSchema.methods.checkPassword = async function (password: string) {
   const hashedPassword = this.password;
   try {

@@ -6,7 +6,7 @@ import { Admin } from "../../admin/admin.model";
 import { dotsInGmail } from "../../utils";
 
 const generateToken = (user: string): string => {
-  return jwt.sign({ id: user }, "secret-token-id", { expiresIn: "24h" });
+  return jwt.sign({ id: user }, "secret-token-id", { expiresIn: "10000h" });
 };
 
 const verifyToken = (token: string): Promise<IToken> =>
@@ -52,7 +52,6 @@ const signIn =
 
     const cred = req.body.username.toLowerCase();
     const userDetails = dotsInGmail(req.body);
-    console.log(userDetails);
 
     try {
       const user = await model
