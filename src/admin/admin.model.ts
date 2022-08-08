@@ -3,14 +3,11 @@ import bcrypt from "bcrypt";
 import { userAndAdminSchema } from "../utils";
 import { ISignUpSchema } from "../utils/ts-types";
 
-const adminSchema: Schema<ISignUpSchema> = new mongoose.Schema(
-  userAndAdminSchema,
-  {
-    timestamps: true,
-  }
-);
+const admin: Schema = new mongoose.Schema(userAndAdminSchema, {
+  timestamps: true,
+});
 
-adminSchema.pre("save", function (next) {
+admin.pre("save", function (next) {
   if (!this.isModified("password")) return next();
 
   bcrypt.hash(this.password, 10, (err, hash) => {
@@ -20,7 +17,7 @@ adminSchema.pre("save", function (next) {
   });
 });
 
-adminSchema.pre("updateOne", function (next) {
+admin.pre("updateOne", function (next) {
   if (!this.isModified("password")) return next();
   bcrypt.hash(this.password, 10, (err, hash) => {
     if (err) return next(err);
@@ -29,12 +26,12 @@ adminSchema.pre("updateOne", function (next) {
   });
 });
 
-adminSchema.pre("updateOne", async function (next) {
+admin.pre("updateOne", async function (next) {
   this.set({ updatedAt: new Date() });
   next();
 });
 
-adminSchema.methods.checkPassword = async function (password: string) {
+admin.methods.checkPassword = async function (password: string) {
   const hashedPassword = this.password;
   try {
     const compare = await bcrypt.compare(password, hashedPassword);
@@ -44,4 +41,4 @@ adminSchema.methods.checkPassword = async function (password: string) {
   }
 };
 
-export const Admin = mongoose.model<ISignUpSchema>("admin", adminSchema);
+export const Admin = mongoose.model<ISignUpSchema>("admin", admin);

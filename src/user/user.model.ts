@@ -3,14 +3,11 @@ import bcrypt from "bcrypt";
 import { userAndAdminSchema } from "../utils";
 import { ISignUpSchema } from "../utils/ts-types";
 
-const userSchema: Schema<ISignUpSchema> = new mongoose.Schema(
-  userAndAdminSchema,
-  {
-    timestamps: true,
-  }
-);
+const user: Schema = new mongoose.Schema(userAndAdminSchema, {
+  timestamps: true,
+});
 
-userSchema.pre("save", function (next) {
+user.pre("save", function (next) {
   if (!this.isModified("password")) return next();
 
   bcrypt.hash(this.password, 10, (err, hash) => {
@@ -20,7 +17,7 @@ userSchema.pre("save", function (next) {
   });
 });
 
-userSchema.pre("updateOne", function (next) {
+user.pre("updateOne", function (next) {
   if (!this.isModified("password")) return next();
   bcrypt.hash(this.password, 10, (err, hash) => {
     if (err) return next(err);
@@ -29,7 +26,7 @@ userSchema.pre("updateOne", function (next) {
   });
 });
 
-userSchema.methods.checkPassword = async function (password: string) {
+user.methods.checkPassword = async function (password: string) {
   const hashedPassword = this.password;
   try {
     const compare = await bcrypt.compare(password, hashedPassword);
@@ -39,4 +36,4 @@ userSchema.methods.checkPassword = async function (password: string) {
   }
 };
 
-export const User = mongoose.model<ISignUpSchema>("user", userSchema);
+export const User = mongoose.model<ISignUpSchema>("user", user);

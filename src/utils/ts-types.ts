@@ -4,14 +4,14 @@ import { Document } from "mongoose";
 export interface ISignUpSchema extends Document {
   checkPassword: (password: string) => boolean;
   username: {
-    [key: string]: any;
+    [key: string]: string | boolean | number;
   };
-  password: any;
+  password: string;
   name: {
-    [key: string]: any;
+    [key: string]: string | boolean | number;
   };
   email: {
-    [key: string]: any;
+    [key: string]: string | boolean | number;
   };
 }
 export interface ISignIn extends Request {

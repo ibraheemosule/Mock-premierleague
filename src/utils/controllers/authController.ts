@@ -19,10 +19,21 @@ const verifyToken = (token: string): Promise<IToken> =>
 
 const signUp = (model: Model<ISignUpSchema>) => async (req: any, res: any) => {
   const requiredFields = ["name", "username", "password", "email"];
-  try {
-    const { body } = req;
-    let reqFieldEmpty: string | undefined;
 
+  try {
+    const { body } = req,
+      checkUsername = /^[a-zA-Z0-9_.-]*$/.test(body.username),
+      checkName = /^[a-zA-Z\s]*$/.test(body.name);
+
+    if (!checkUsername || !checkName) {
+      res.status(400).json({
+        username: `username should be letters and number only`,
+        name: `name should be letters and spaces only`,
+      });
+      return;
+    }
+
+    let reqFieldEmpty: string | undefined;
     requiredFields.every((val: string) => {
       if (!body[val].length) {
         reqFieldEmpty = val;
@@ -35,7 +46,6 @@ const signUp = (model: Model<ISignUpSchema>) => async (req: any, res: any) => {
       return res.status(400).json({ message: `${reqFieldEmpty} is required` });
 
     const userDetails = dotsInGmail(body);
-    console.log(userDetails);
 
     const admin = await model.create(userDetails);
     if (!admin) throw new Error();

@@ -12,13 +12,6 @@ export const userAndAdminSchema = {
     maxLength: 20,
     unique: true,
     lowercase: true,
-    // validate: {
-    //   validator: function (value: string) {
-    //     return value.match(/^[a-zA-Z0-9_.-]*$/);
-    //   },
-    //   message: (prop: { [key: string]: any }) =>
-    //     `${prop.value} should contain only letters and numbers`,
-    // },
   },
   name: {
     type: String,
@@ -26,13 +19,6 @@ export const userAndAdminSchema = {
     minLength: 2,
     maxLength: 40,
     lowercase: true,
-    // validate: {
-    //   validator: function (value: string) {
-    //     return value.match(/^[a-zA-Z\s]*$/);
-    //   },
-    //   message: (prop: { [key: string]: any }) =>
-    //     `${prop.value} should contain only letters`,
-    // },
   },
 
   email: {
@@ -47,6 +33,10 @@ export const userAndAdminSchema = {
     minLength: 8,
     required: true,
   },
+};
+
+export const userNameVerification = function (username: string) {
+  return username.match(/^[a-zA-Z0-9_.-]*$/);
 };
 
 export const dotsInGmail = (body: IBody) => {
