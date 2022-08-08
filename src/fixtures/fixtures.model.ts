@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Links } from "../links/links.model";
 import { Teams } from "../teams/teams.model";
 
 const fixtureSchema = new mongoose.Schema(
@@ -30,6 +31,11 @@ const fixtureSchema = new mongoose.Schema(
       enum: ["pending", "ongoing", "finished"],
       default: "pending",
     },
+    createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "admin",
+      immutable: true,
+    },
     updatedBy: {
       type: mongoose.Types.ObjectId,
       ref: "admin",
@@ -54,12 +60,11 @@ fixtureSchema.post("findOneAndUpdate", async function (doc, next) {
 });
 
 fixtureSchema.post("remove", async function (doc) {
-  await Teams.findOneAndUpdate(
+  await Teams.updateMany(
     {},
     {
       $pull: { "fixtures.$._id": doc._id },
-    },
-    { new: true }
+    }
   );
 });
 

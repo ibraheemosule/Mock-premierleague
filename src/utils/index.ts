@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { IBody } from "./ts-types";
 
 const env = process.env.NODE_ENV || "development";
@@ -11,6 +12,13 @@ export const userAndAdminSchema = {
     maxLength: 20,
     unique: true,
     lowercase: true,
+    // validate: {
+    //   validator: function (value: string) {
+    //     return value.match(/^[a-zA-Z0-9_.-]*$/);
+    //   },
+    //   message: (prop: { [key: string]: any }) =>
+    //     `${prop.value} should contain only letters and numbers`,
+    // },
   },
   name: {
     type: String,
@@ -18,7 +26,15 @@ export const userAndAdminSchema = {
     minLength: 2,
     maxLength: 40,
     lowercase: true,
+    // validate: {
+    //   validator: function (value: string) {
+    //     return value.match(/^[a-zA-Z\s]*$/);
+    //   },
+    //   message: (prop: { [key: string]: any }) =>
+    //     `${prop.value} should contain only letters`,
+    // },
   },
+
   email: {
     type: String,
     required: true,

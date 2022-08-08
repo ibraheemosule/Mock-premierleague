@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import mongoose from "mongoose";
 
 const add = (model: any) => async (req: Request, res: Response) => {
   if (!req.body) res.status(400).json({ message: "No name specified" });
@@ -51,7 +50,7 @@ const getOne =
     try {
       const dbResponse = await model
         .findOne(
-          { id: query.toLowerCase() },
+          { _id: query.toLowerCase() },
           {
             createdBy: 0,
             password: 0,

@@ -31,6 +31,6 @@ export const start = async () => {
       console.log("Application started on port 3000!");
     });
   } catch (e) {
-    console.error(e, "an error here");
+    console.error(e, "Could not connect to mongodb server");
   }
 };

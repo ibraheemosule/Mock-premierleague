@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { crudControllers } from "../utils/controllers/crudControllers";
 import { Fixtures } from "./fixtures.model";
+import { Teams } from "../teams/teams.model";
+import {
+  createLink,
+  retrieveLink,
+  userFixtures,
+} from "../links/links.controllers";
 
 const add = (model: any) => async (req: Request, res: Response) => {
   if (!req.body || !req.body.home.uid || !req.body.away.uid) {
@@ -21,10 +27,21 @@ const add = (model: any) => async (req: Request, res: Response) => {
       info: away.uid,
       score: away.score ?? null,
     },
+    createdBy: req.headers.authorization,
     updatedBy: req.headers.authorization,
   };
 
   try {
+    const checkId =
+      !!(await Teams.exists({
+        _id: away.uid,
+      })) &&
+      !!(await Teams.exists({
+        _id: home.uid,
+      }));
+
+    if (!checkId) throw new Error("invalid team id");
+
     const data = await model
       .findOneAndUpdate(
         {
@@ -39,16 +56,14 @@ const add = (model: any) => async (req: Request, res: Response) => {
       )
       .populate({
         path: "home.info",
-
         select: ["name"],
       })
       .populate({
         path: "away.info",
-
         select: ["name"],
       })
       .populate({
-        path: "updatedBy",
+        path: "createdBy updatedBy",
         select: ["name"],
       })
       .lean()
@@ -93,7 +108,7 @@ const getOne =
 
     try {
       const dbResponse = await model
-        .findOne({ id: query })
+        .findOne({ _id: query })
         .populate({
           path: "home.info",
           select: ["id", "name"],
@@ -119,4 +134,7 @@ export default {
   getAll: getAll(Fixtures),
   getOne: getOne(Fixtures),
   add: add(Fixtures),
+  link: createLink,
+  retrieveLink,
+  userFixtures,
 };

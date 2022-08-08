@@ -7,19 +7,20 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
   try {
     const data = await model
       .find({})
-      .populate({
-        path: "fixtures",
-        select: ["status", "home.score", "away.score"],
-        populate: {
-          path: "home.info away.info",
-          model: "team",
-          select: ["name"],
-        },
-      })
+      //   .populate({
+      //     path: "fixtures",
+      //     select: ["status", "home.score", "away.score"],
+      //     populate: {
+      //       path: "home.info away.info",
+      //       model: "team",
+      //       select: ["name"],
+      //     },
+      //   })
       .populate({
         path: "createdBy",
         select: ["id", "name"],
       })
+      .select({ fixtures: 0 })
       .lean()
       .exec();
     res.status(200).json({ data });
