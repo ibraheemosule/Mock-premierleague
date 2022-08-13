@@ -5,11 +5,11 @@ import { ISignUpSchema, ISignIn, IToken } from "../ts-types";
 import { Admin } from "../../admin/admin.model";
 import { dotsInGmail } from "../../utils";
 
-const generateToken = (user: string): string => {
+export const generateToken = (user: string): string => {
   return jwt.sign({ id: user }, "secret-token-id", { expiresIn: "10000h" });
 };
 
-const verifyToken = (token: string): Promise<IToken> =>
+export const verifyToken = (token: string): Promise<IToken> =>
   new Promise((resolve, reject) => {
     jwt.verify(token, "secret-token-id", (err: any, payload: any) => {
       if (err) return reject(err);
@@ -21,21 +21,11 @@ const signUp = (model: Model<ISignUpSchema>) => async (req: any, res: any) => {
   const requiredFields = ["name", "username", "password", "email"];
 
   try {
-    const { body } = req,
-      checkUsername = /^[a-zA-Z0-9_.-]*$/.test(body.username),
-      checkName = /^[a-zA-Z\s]*$/.test(body.name);
-
-    if (!checkUsername || !checkName) {
-      res.status(400).json({
-        username: `username should be letters and number only`,
-        name: `name should be letters and spaces only`,
-      });
-      return;
-    }
+    const { body } = req;
 
     let reqFieldEmpty: string | undefined;
     requiredFields.every((val: string) => {
-      if (!body[val].length) {
+      if (!body[val]) {
         reqFieldEmpty = val;
         return false;
       }
@@ -45,11 +35,22 @@ const signUp = (model: Model<ISignUpSchema>) => async (req: any, res: any) => {
     if (!!reqFieldEmpty)
       return res.status(400).json({ message: `${reqFieldEmpty} is required` });
 
+    const checkUsername = /^[a-zA-Z0-9_]*$/.test(body.username),
+      checkName = /^[a-zA-Z\s]*$/.test(body.name);
+
+    if (!checkUsername || !checkName || Number(body.username)) {
+      return res.status(400).json({
+        username: `username should be letters and number only`,
+        name: `name should be letters and spaces only`,
+      });
+    }
+
     const userDetails = dotsInGmail(body);
 
     const admin = await model.create(userDetails);
-    if (!admin) throw new Error();
+    if (!admin.id) throw new Error();
     const token = generateToken(admin?.id);
+
     res.status(200).json({ token });
   } catch (e) {
     return res.status(400).send(e);
@@ -61,6 +62,8 @@ const signIn =
     if (!req.body.username || !req.body.password) return res.status(400).end();
 
     const cred = req.body.username.toLowerCase();
+
+    //verification of email needs to be done here console.log
     const userDetails = dotsInGmail(req.body);
 
     try {

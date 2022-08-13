@@ -25,8 +25,9 @@ app.use("/teams", teamRoutes);
 app.use("/fixtures", fixturesRoutes);
 
 export const start = async () => {
+  const url = process.env.URL as string;
   try {
-    await connect();
+    await connect(url);
     app.listen(port, () => {
       console.log("Application started on port 3000!");
     });
