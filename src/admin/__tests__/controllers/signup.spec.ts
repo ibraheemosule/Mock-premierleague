@@ -1,5 +1,6 @@
 import controller from "../../admin.controller";
 import { faker } from "@faker-js/faker";
+import { isFunction } from "lodash";
 
 let req: Record<string, any>, res: Record<string, any>;
 
@@ -8,10 +9,10 @@ const { signUp } = controller;
 beforeEach(() => {
   req = {
     body: {
-      name: faker.name.fullName({ firstName: "John", lastName: "Doe" }),
-      username: faker.internet.userName(),
+      name: "John Doe",
+      username: "johndoe88",
       email: faker.internet.email(),
-      password: faker.internet.password(),
+      password: "johndoe88.",
     },
   };
   res = {
@@ -26,6 +27,10 @@ beforeEach(() => {
 });
 
 describe("test sign up details", () => {
+  test("sign up controller is a function", () => {
+    expect(isFunction(signUp)).toBeTruthy();
+  });
+
   test("invalid body details should return 400 error", async () => {
     expect.assertions(2);
     req = { body: {} };
@@ -72,6 +77,8 @@ describe("test sign up details", () => {
 
     removeDot();
 
+    console.log(req.body, "80");
+
     res = {
       status(status: number) {
         expect(status).toBe(200);
@@ -85,6 +92,28 @@ describe("test sign up details", () => {
         });
       },
     };
+    await signUp(req, res);
+  });
+
+  test("can signup with letters only username", async () => {
+    req.body.username = "johndoe";
+    req.body.email = "johndoe@gmail.com";
+    console.log(req.body, "103");
+
+    res = {
+      status(status: number) {
+        expect(status).toBe(200);
+        return this;
+      },
+
+      json(response: any) {
+        expect(typeof response).toBe("object");
+        expect(response).toMatchObject({
+          token: expect.any(String),
+        });
+      },
+    };
+
     await signUp(req, res);
   });
 });

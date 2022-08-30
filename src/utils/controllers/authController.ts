@@ -66,15 +66,19 @@ const signIn =
     //verification of email needs to be done here console.log
     const userDetails = dotsInGmail(req.body);
 
+    console.log(req.body, "here");
+
     try {
       const user = await model
         .findOne({ $or: [{ username: cred }, { email: cred }] })
         .select("username password id")
         .exec();
+
       const checkPassword = await user?.checkPassword(req.body.password);
 
       if (!checkPassword) throw new Error();
       const token = generateToken(user?.id);
+
       res.status(200).json({ token });
     } catch (e) {
       res.status(401).send("Invalid username or password");
