@@ -9,7 +9,7 @@
     "start:nodemon": "./node_modules/nodemon/bin/nodemon.js",
     "build": "npx tsc",
     "test": "npx jest --watchAll --coverage",
-    "test:admin": "npx jest --watchAll --detectOpenHandles --testPathPattern=src/admin/__tests__/controllers/"
+    "test:admin": "npx jest --watchAll --detectOpenHandles --testPathPattern=ordered-tests.spec.ts"
   },
   "keywords": [],
   "author": "",

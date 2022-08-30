@@ -1,7 +1,7 @@
 import controller from "../../admin.controller";
 import { isFunction } from "lodash";
 
-describe("contain all controllers for admin", () => {
+export default describe("contain all controllers for admin", () => {
   const controllerNames = [
     "getOne",
     "getAll",
