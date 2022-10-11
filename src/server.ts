@@ -28,7 +28,7 @@ export const start = async () => {
   const url = process.env.MONGODB_URI as string;
   try {
     await connect(url);
-    app.listen(port, () => {
+    app.listen(process.env.PORT || 3000, () => {
       console.log("Application started on port 3000!");
     });
   } catch (e) {
