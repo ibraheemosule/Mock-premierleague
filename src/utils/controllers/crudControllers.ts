@@ -20,6 +20,7 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
       .find({}, { password: 0, username: 0 })
       .lean()
       .exec();
+    if (!data.length) return res.send("No data");
     res.status(200).json({ data });
   } catch (e) {
     res.status(400).end();

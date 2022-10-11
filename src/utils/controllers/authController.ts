@@ -66,7 +66,7 @@ const signIn =
     //verification of email needs to be done here console.log
     const userDetails = dotsInGmail(req.body);
 
-    console.log(req.body, "here");
+    console.log(userDetails);
 
     try {
       const user = await model
