@@ -23,6 +23,8 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
       .select({ fixtures: 0 })
       .lean()
       .exec();
+
+    console.log(data, "here");
     res.status(200).json({ data });
   } catch (e) {
     res.status(400).end();
