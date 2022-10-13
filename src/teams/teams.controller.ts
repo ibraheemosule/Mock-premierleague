@@ -27,6 +27,7 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
     console.log(data, "here");
     res.status(200).json({ data });
   } catch (e) {
+    console.log("errror here");
     res.status(400).end();
   }
 };
