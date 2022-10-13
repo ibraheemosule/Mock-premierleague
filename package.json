@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node ./src/index.ts",
+    "start": "node dist/index.js",
+    "postinstall": "tsc",
     "start:prod": "npm run build && node ./dist/src/index.js",
     "start:nodemon": "./node_modules/nodemon/bin/nodemon.js",
-    "tsc": "tsc",
-    "postinstall": "npm run tsc",
     "test": "npx jest --watchAll --coverage",
+    "deploy": "git add . && git commit -m Heroku && git push heroku main",
     "test:admin": "npx jest --watchAll --detectOpenHandles --testPathPattern=ordered-tests.spec.ts"
   },
   "keywords": [],
