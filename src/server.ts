@@ -8,14 +8,14 @@ import teamRoutes from "./teams/teams.routes";
 import adminRoutes from "./admin/admin.routes";
 import userRoutes from "./user/user.routes";
 import fixturesRoutes from "./fixtures/fixtures.routes";
-// import cors from "cors";
+import cors from "cors";
 
 const app = express();
 
 // middlewares
 app.use(json());
 app.use(urlencoded({ extended: true }));
-// app.use(cors());
+app.use(cors());
 app.use(morgan("dev"));
 
 //routers
