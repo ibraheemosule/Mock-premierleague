@@ -7,6 +7,7 @@
     "start": "node dist/index.js",
     "postinstall": "tsc",
     "start:prod": "npm run build && node ./dist/src/index.js",
+    "start:dev": "ts-node src/index.ts",
     "start:nodemon": "./node_modules/nodemon/bin/nodemon.js",
     "test": "npx jest --watchAll --coverage",
     "deploy": "git add . && git commit -m Heroku && git push heroku main",
