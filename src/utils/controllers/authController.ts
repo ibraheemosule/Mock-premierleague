@@ -7,7 +7,7 @@ import { removeExtraDotsInGmail } from "../../utils";
 
 export const generateToken = (user: string): string =>
   jwt.sign({ id: user }, "secret-token-id", {
-    expiresIn: process.env.NODE_ENV ? "10s" : "10000h",
+    expiresIn: process.env.NODE_ENV ? "24h" : "10000h",
   });
 
 export const verifyToken = (token: string): Promise<IToken> =>
