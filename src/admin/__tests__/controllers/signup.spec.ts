@@ -1,8 +1,9 @@
 import controller from "../../admin.controller";
 import { faker } from "@faker-js/faker";
 import { isFunction } from "lodash";
+import { Request, Response } from "express";
 
-let req: Record<string, any>, res: Record<string, any>;
+let req: Request, res: Response;
 
 const { signUp } = controller;
 
@@ -15,7 +16,7 @@ export default describe("sign up tests", () => {
         email: faker.internet.email(),
         password: "johndoe88.",
       },
-    };
+    } as unknown as Request;
     res = {
       status(status: number) {
         expect(status).toBe(400);
@@ -24,7 +25,7 @@ export default describe("sign up tests", () => {
       json(result: any) {
         expect(typeof result.message).toBe("string");
       },
-    };
+    } as unknown as Response;
   });
 
   describe("test sign up details", () => {
@@ -34,7 +35,7 @@ export default describe("sign up tests", () => {
 
     test("invalid body details should return 400 error", async () => {
       expect.assertions(2);
-      req = { body: {} };
+      req = { body: {} } as unknown as Request;
       await signUp(req, res);
     });
 
@@ -42,7 +43,7 @@ export default describe("sign up tests", () => {
       req.body.name = faker.internet.userName();
       res.json = function (result: any) {
         expect(typeof result.name).toBe("string");
-      };
+      } as typeof res.json;
       await signUp(req, res);
     });
 
@@ -50,7 +51,7 @@ export default describe("sign up tests", () => {
       req.body.username = "hello there";
       res.json = function (result: any) {
         expect(typeof result.username).toBe("string");
-      };
+      } as typeof res.json;
       await signUp(req, res);
     });
 
@@ -58,7 +59,7 @@ export default describe("sign up tests", () => {
       req.body.username = "hello.there";
       res.json = function (result: any) {
         expect(typeof result.username).toBe("string");
-      };
+      } as typeof res.json;
       await signUp(req, res);
     });
 
@@ -66,7 +67,7 @@ export default describe("sign up tests", () => {
       req.body.username = "854908943";
       res.json = function (result: any) {
         expect(typeof result.username).toBe("string");
-      };
+      } as typeof res.json;
       await signUp(req, res);
     });
 
@@ -81,18 +82,19 @@ export default describe("sign up tests", () => {
       console.log(req.body, "80");
 
       res = {
+        ...res,
         status(status: number) {
           expect(status).toBe(200);
           return this;
         },
+      } as unknown as Response;
 
-        json(response: any) {
-          expect(typeof response).toBe("object");
-          expect(response).toMatchObject({
-            token: expect.any(String),
-          });
-        },
-      };
+      res.json = function (response: any) {
+        expect(typeof response).toBe("object");
+        expect(response).toMatchObject({
+          token: expect.any(String),
+        });
+      } as typeof res.json;
       await signUp(req, res);
     });
 
@@ -106,14 +108,14 @@ export default describe("sign up tests", () => {
           expect(status).toBe(200);
           return this;
         },
+      } as unknown as Response;
 
-        json(response: any) {
-          expect(typeof response).toBe("object");
-          expect(response).toMatchObject({
-            token: expect.any(String),
-          });
-        },
-      };
+      res.json = function (response: any) {
+        expect(typeof response).toBe("object");
+        expect(response).toMatchObject({
+          token: expect.any(String),
+        });
+      } as typeof res.json;
 
       await signUp(req, res);
     });
