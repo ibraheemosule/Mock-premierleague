@@ -39,9 +39,11 @@ export const userNameVerification = function (username: string) {
   return username.match(/^[a-zA-Z0-9_.-]*$/);
 };
 
-export const dotsInGmail = (body: IBody) => {
+export const removeExtraDotsInGmail = (body: IBody) => {
   const option = body.email ? "email" : "username";
+
   if (!/@gmail/.test(body[option])) return body;
+
   const value: string[] = body[option].split("").filter((val, i) => {
     if (val !== ".") return true;
     const dotIndex = i !== body[option].lastIndexOf(val);

@@ -4,31 +4,29 @@ import { Teams } from "../teams/teams.model";
 
 const fixtureSchema = new mongoose.Schema(
   {
-    home: {
-      info: {
-        type: mongoose.Types.ObjectId,
-        ref: "team",
-        required: true,
-      },
-      score: {
-        type: Number,
-        default: null,
-      },
+    homeTeam: {
+      type: mongoose.Types.ObjectId,
+      ref: "team",
+      required: true,
+      immutable: true,
     },
-    away: {
-      info: {
-        type: mongoose.Types.ObjectId,
-        ref: "team",
-        required: true,
-      },
-      score: {
-        type: Number,
-        default: null,
-      },
+    homeScore: {
+      type: Number,
+      default: null,
+    },
+    awayTeam: {
+      type: mongoose.Types.ObjectId,
+      ref: "team",
+      required: true,
+      immutable: true,
+    },
+    awayScore: {
+      type: Number,
+      default: null,
     },
     status: {
       type: String,
-      enum: ["pending", "ongoing", "finished"],
+      enum: ["pending", "completed"],
       default: "pending",
     },
     createdBy: {
@@ -44,20 +42,41 @@ const fixtureSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+fixtureSchema.index({ homeTeam: 1, awayTeam: 1 }, { unique: true });
+
 fixtureSchema.pre("findOneAndUpdate", function (next) {
+  const homeScore: number = this.get("homeScore"),
+    awayScore: number = this.get("awayScore"),
+    status = this.get("status");
+
+  console.log(homeScore, awayScore);
+
+  const isScoreValid =
+    Number.isInteger(homeScore) && Number.isInteger(awayScore);
+
+  if (status === "completed" && !isScoreValid) {
+    return next(
+      new Error("Status is completed but scoreline provided is invalid")
+    );
+  }
+
+  if (!/completed|pending/i.test(status)) {
+    return next(new Error("invalid status value"));
+  }
+
   this.set({ updatedAt: new Date() });
   next();
 });
 
-fixtureSchema.post("findOneAndUpdate", async function (doc, next) {
-  const team = await Teams.updateMany(
-    {
-      _id: { $in: [doc.away.info, doc.home.info] },
-    },
-    { $push: { fixtures: doc._id } }
-  );
-  next();
-});
+// fixtureSchema.post("findOneAndUpdate", async function (doc, next) {
+//   const team = await Teams.updateMany(
+//     {
+//       _id: { $in: [doc.homeTeam, doc.awayTeam] },
+//     },
+//     { $push: { fixtures: doc._id } }
+//   );
+//   next();
+// });
 
 fixtureSchema.post("remove", async function (doc) {
   await Teams.updateMany(

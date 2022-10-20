@@ -4,6 +4,7 @@ import { Teams } from "./teams.model";
 import mongoose from "mongoose";
 
 const getAll = (model: any) => async (req: Request, res: Response) => {
+  console.log("here");
   try {
     const data = await model
       .find({})
@@ -16,19 +17,17 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
       //       select: ["name"],
       //     },
       //   })
-      .populate({
-        path: "createdBy",
-        select: ["id", "name"],
-      })
-      .select({ fixtures: 0 })
+      // .populate({
+      //   path: "createdBy",
+      //   select: ["id", "name"],
+      // })
+      .select({ fixtures: 0, createdBy: 0, createdAt: 0, updatedAt: 0 })
       .lean()
       .exec();
 
-    console.log(data, "here");
     res.status(200).json({ data });
   } catch (e) {
-    console.log("errror here");
-    res.status(400).end();
+    res.status(400).json("an error occured while trying to get teams");
   }
 };
 
@@ -44,25 +43,26 @@ const getOne =
       const key = queryType ? "_id" : "name";
       const dbResponse = await model
         .findOne({ [key]: query.toLowerCase() })
-        .populate({
-          path: "fixtures",
-          select: ["status", "home.score", "away.score"],
-          populate: {
-            path: "home.info away.info",
-            model: "team",
-            select: ["name"],
-          },
-        })
+        .select({ fixtures: 0 })
+        // .populate({
+        //   path: "fixtures",
+        //   select: ["status", "home.score", "away.score"],
+        //   populate: {
+        //     path: "home.info away.info",
+        //     model: "team",
+        //     select: ["name"],
+        //   },
+        // })
         .populate({
           path: "createdBy",
-          select: ["id", "name"],
+          select: { name: 1, _id: 0 },
         })
         .lean()
         .exec();
 
       res.status(200).json({ data: dbResponse });
     } catch (e) {
-      res.status(400).send(e);
+      res.status(400).json(e);
     }
   };
 

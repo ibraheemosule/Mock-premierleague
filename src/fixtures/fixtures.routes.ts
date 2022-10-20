@@ -6,9 +6,13 @@ const router = Router();
 
 router.get("/", controller.getOne);
 router.get("/link/:linkId", controller.retrieveLink);
-router.use(protect);
 router.get("/", controller.getAll);
+router.use(protect);
 
+router.get("/pending", controller.getAll);
+router.get("/completed", controller.getAll);
+
+router.get("/teams", controller.search);
 router.use(verifyAdmin);
 router.post("/", controller.add);
 router.post("/generate-link", controller.link);

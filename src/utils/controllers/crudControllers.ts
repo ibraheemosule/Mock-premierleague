@@ -10,7 +10,7 @@ const add = (model: any) => async (req: Request, res: Response) => {
     });
     res.status(200).json({ message: "data created" });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).json(e);
   }
 };
 
@@ -20,10 +20,10 @@ const getAll = (model: any) => async (req: Request, res: Response) => {
       .find({}, { password: 0, username: 0 })
       .lean()
       .exec();
-    if (!data.length) return res.send("No data");
+    if (!data.length) return res.json("No data");
     res.status(200).json({ data });
   } catch (e) {
-    res.status(400).end();
+    res.status(400).json();
   }
 };
 
@@ -36,7 +36,7 @@ const remove = (model: any) => async (req: Request, res: Response) => {
       .status(200)
       .json({ data: { message: "removed data", data: del.toObject() } });
   } catch (e) {
-    res.status(400).end();
+    res.status(400).json(e);
   }
 };
 
@@ -62,7 +62,7 @@ const getOne =
       if (!dbResponse) throw new Error("No data found");
       res.status(200).json({ data: dbResponse });
     } catch (e) {
-      res.status(400).send(e);
+      res.status(400).json(e);
     }
   };
 
@@ -71,13 +71,13 @@ const update = (model: any) => async (req: Request, res: Response) => {
   try {
     if (!id) throw new Error("Cannot Find Data");
     const data = await model
-      .findByIdAndUpdate(id, req.body, { new: true })
+      .findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
       .select("-createdBy -password")
       .exec();
     if (!data) throw new Error("No Data Found");
     res.status(201).json({ message: "data updated", data });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).json(e);
   }
 };
 

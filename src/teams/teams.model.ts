@@ -10,10 +10,10 @@ const teamsSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    fixtures: {
-      type: [{ type: mongoose.Schema.Types.ObjectId }],
-      ref: "fixture",
-    },
+    // fixtures: {
+    //   type: [{ type: mongoose.Schema.Types.ObjectId }],
+    //   ref: "fixture",
+    // },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "admin",
@@ -30,7 +30,7 @@ teamsSchema.pre("updateOne", async function (next) {
 
 teamsSchema.post("remove", async function (doc) {
   await Fixtures.deleteMany({
-    $or: [{ "home.info": doc._id }, { "away.info": doc._id }],
+    $or: [{ homeTeam: doc._id }, { awayTeam: doc._id }],
   });
 });
 

@@ -27,7 +27,7 @@ app.use("/fixtures", fixturesRoutes);
 export const start = async () => {
   const url = process.env.MONGODB_URI as string;
   try {
-    await connect(url);
+    await connect(process.env.NODE_ENV ? url : "mongodb://localhost:27017/mpl");
     app.listen(process.env.PORT || 3000, () => {
       console.log("Application started on port 3000!");
     });

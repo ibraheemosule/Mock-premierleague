@@ -9,24 +9,18 @@ import {
 } from "../links/links.controllers";
 
 const add = (model: any) => async (req: Request, res: Response) => {
-  if (!req.body || !req.body.home.uid || !req.body.away.uid) {
+  if (!req.body?.homeTeam || !req.body?.awayTeam) {
     return res.status(400).json({ message: "Invalid body syntax" });
   }
 
-  const { home, away } = req.body;
-  if (home.uid === away.uid) {
+  const { homeTeam, awayTeam, status, homeScore, awayScore } = req.body;
+
+  if (homeTeam === awayTeam) {
     return res.status(400).json({ message: "Home and away is the same team" });
   }
 
   const reqBody = {
-    home: {
-      info: home.uid,
-      score: home.score ?? null,
-    },
-    away: {
-      info: away.uid,
-      score: away.score ?? null,
-    },
+    ...req.body,
     createdBy: req.headers.authorization,
     updatedBy: req.headers.authorization,
   };
@@ -34,68 +28,73 @@ const add = (model: any) => async (req: Request, res: Response) => {
   try {
     const checkId =
       !!(await Teams.exists({
-        _id: away.uid,
+        _id: awayTeam,
       })) &&
       !!(await Teams.exists({
-        _id: home.uid,
+        _id: homeTeam,
       }));
 
     if (!checkId) throw new Error("invalid team id");
 
-    const data = await model
-      .findOneAndUpdate(
-        {
-          "home.info": home.uid,
-          "away.info": away.uid,
-        },
-        reqBody,
-        {
-          new: true,
-          upsert: true,
-        }
-      )
-      .populate({
-        path: "home.info",
-        select: ["name"],
-      })
-      .populate({
-        path: "away.info",
-        select: ["name"],
-      })
-      .populate({
-        path: "createdBy updatedBy",
-        select: ["name"],
-      })
-      .lean()
-      .exec();
+    let data = await model.create(reqBody);
+    data = await data.populate({
+      path: "homeTeam awayTeam createdBy updatedBy",
+      select: "name -_id",
+    });
+    // .populate({
+    //   path: "homeTeam",
+    //   select: ["name"],
+    // })
+    // .populate({
+    //   path: "awayTeam",
+    //   select: ["name"],
+    // })
+    // .populate({
+    //   path: "createdBy updatedBy",
+    //   select: ["name"],
+    // })
+    // .lean()
+    // .exec();
 
     res.status(200).json({ message: "data created", data });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).json(e);
   }
 };
 
 const getAll = (model: any) => async (req: Request, res: Response) => {
+  const status = req.originalUrl.slice(req.originalUrl.lastIndexOf("/") + 1),
+    paramValues = ["pending", "completed"],
+    query = paramValues.includes(status) ? { status } : {};
+
   try {
     const data = await model
-      .find({})
+      .find(query)
       .populate({
-        path: "home.info",
-        select: ["id", "name"],
-      })
-      .populate({
-        path: "away.info",
-        select: ["id", "name"],
+        path: "homeTeam awayTeam",
+        select: { name: 1, _id: 0 },
       })
       .populate({
         path: "updatedBy",
-        select: ["id", "name"],
+        select: { name: 1, _id: 0 },
+      })
+      .populate({
+        path: "createdBy",
+        select: { name: 1, _id: 0 },
+      })
+      .select({
+        createdBy: 0,
+        createdAt: 0,
+        updatedBy: 0,
+        updatedAt: 0,
+        __v: 0,
       })
       .lean()
       .exec();
+
     res.status(200).json({ data });
   } catch (e) {
-    res.status(400).end();
+    res.status(400).json("an error occured while trying to get fixtures");
   }
 };
 
@@ -110,24 +109,80 @@ const getOne =
       const dbResponse = await model
         .findOne({ _id: query })
         .populate({
-          path: "home.info",
+          path: "homeTeam",
           select: ["id", "name"],
         })
         .populate({
-          path: "away.info",
+          path: "awayTeam",
           select: ["id", "name"],
         })
         .populate({
           path: "updatedBy",
-          select: ["id", "name"],
+          select: "name -_id",
+        })
+        .populate({
+          path: "createdBy",
+          select: "name -_id",
         })
         .lean()
         .exec();
       res.status(200).json({ data: dbResponse });
     } catch (e) {
-      res.status(400).send(e);
+      res.status(400).json(e);
     }
   };
+
+const search = (model: any) => async (req: Request, res: Response) => {
+  const query = req.query.search as string;
+
+  try {
+    if (!query) throw Error("No search query");
+    let data = await model
+      .find()
+      .populate({
+        path: "home.info away.info",
+        model: "team",
+        select: { name: 1, _id: 0 },
+      })
+      // .aggregate([
+      //   {
+      //     $match: {
+      //       _id: "634818c38f6319aac96d3984",
+      //     },
+      //   },
+      // ])
+
+      // .aggregate([
+      //   {
+      //     $match: {
+      //       $or: [{ "home.info.name": query }, { "away.info.name": query }],
+      //     },
+      //   },
+      // ])
+      // .select(
+      //   {},
+      //   { $or: [{ "home.info.name": query }, { "away.info.name": query }] }
+      // )
+      // .populate({
+      //   path: "updatedBy",
+      //   select: { name: 1, _id: 0 },
+      // })
+      .select({ home: 1, away: 1 })
+      // .select({
+      //   $or: [{ "home.info.name": query }, { "away.info.name": query }],
+      // })
+      .lean()
+      .exec();
+
+    data = data.filter(
+      (val: any) => val.home.info.name === query || val.away.info.name === query
+    );
+
+    res.status(200).json({ data });
+  } catch (e) {
+    res.status(400).json(e);
+  }
+};
 
 export default {
   ...crudControllers(Fixtures),
@@ -137,4 +192,5 @@ export default {
   link: createLink,
   retrieveLink,
   userFixtures,
+  search: search(Fixtures),
 };
