@@ -5,32 +5,32 @@ import { Fixtures } from "../fixtures/fixtures.model";
 import mongoose from "mongoose";
 
 export const createLink = async (req: Request, res: Response) => {
-  if (!req.body || !req.body.uid) {
+  if (!req.body || !req.body.id) {
     return res.status(400).json({ message: "Invalid body syntax" });
   }
   const id = req.headers.authorization;
   const randomString: string = cuid() + id + cuid() + cuid();
-  const uidCheck = mongoose.Types.ObjectId.isValid(req.body.uid.trim());
+  const idCheck = mongoose.Types.ObjectId.isValid(req.body.id.trim());
 
   try {
-    if (!uidCheck) throw new Error();
+    if (!idCheck) throw new Error();
 
-    const verifyId = await Fixtures.exists({ _id: req.body.uid.trim() });
+    const verifyId = await Fixtures.exists({ _id: req.body.id.trim() });
     if (!verifyId) throw new Error();
 
     let link = await Links.create({
       createdBy: id,
       linkString: randomString,
-      fixture: req.body.uid.trim(),
+      fixture: req.body.id.trim(),
     });
 
     link = await link.populate({
       path: "fixture",
-      select: ["home", "away", "status"],
+      select: "-createdBy -updatedBy",
       populate: {
-        path: "home.info away.info",
+        path: "homeTeam awayTeam",
         model: "team",
-        select: "name",
+        select: "name -_id",
       },
     });
 
@@ -48,11 +48,11 @@ export const retrieveLink = async (req: Request, res: Response) => {
       .select({ fixture: 1 })
       .populate({
         path: "fixture",
-        select: ["home", "away", "status"],
+        select: "-createdBy -updatedBy",
         populate: {
           path: "homeTeam awayTeam",
           model: "team",
-          select: "name",
+          select: "name -_id",
         },
       });
 
@@ -74,11 +74,12 @@ export const userFixtures = async (req: Request, res: Response) => {
       .select({ fixture: 1 })
       .populate({
         path: "fixture",
-        select: ["home", "away", "status"],
+        select: "-createdBy -updatedBy",
+        // select: ["homeTeam", "awayTeam", "status"],
         populate: {
-          path: "home.info away.info",
+          path: "homeTeam awayTeam",
           model: "team",
-          select: "name",
+          select: "name -_id",
         },
       });
 
