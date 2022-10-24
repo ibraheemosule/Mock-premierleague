@@ -33,17 +33,78 @@ export default describe("sign up tests", () => {
       expect(isFunction(signUp)).toBeTruthy();
     });
 
-    test("invalid body details should return 400 error", async () => {
-      expect.assertions(2);
-      req = { body: {} } as unknown as Request;
-      await signUp(req, res);
+    describe("invalid body details should return 400 error", () => {
+      test("no name in signup body object should return 400 error", async () => {
+        expect.assertions(2);
+
+        req.body = { ...req.body, name: undefined };
+
+        res = {
+          ...res,
+          status(status: number) {
+            expect(status).toBe(400);
+            return this;
+          },
+          json(result: { [key: string]: string }) {
+            expect(result.message).toBe("name is required");
+          },
+        } as unknown as Response;
+
+        await signUp(req, res);
+      });
+
+      test("no username in signup body object should return 400 error", async () => {
+        req.body = { ...req.body, username: undefined };
+
+        res = {
+          ...res,
+          json(result: { [key: string]: string }) {
+            expect(result.message).toBe("username is required");
+          },
+        } as unknown as Response;
+        await signUp(req, res);
+      });
+
+      test("no email in signup body object should return 400 error", async () => {
+        req.body = { ...req.body, email: undefined };
+
+        res = {
+          ...res,
+          json(result: { [key: string]: string }) {
+            expect(result.message).toBe("email is required");
+          },
+        } as unknown as Response;
+        await signUp(req, res);
+      });
+
+      test("no password in signup body object should return 400 error", async () => {
+        req.body = { ...req.body, password: undefined };
+
+        res = {
+          ...res,
+          json(result: { [key: string]: string }) {
+            expect(result.message).toBe("password is required");
+          },
+        } as unknown as Response;
+        await signUp(req, res);
+      });
     });
 
     test("name character syntax should be valid", async () => {
+      expect.assertions(2);
+
       req.body.name = faker.internet.userName();
-      res.json = function (result: any) {
-        expect(typeof result.name).toBe("string");
-      } as typeof res.json;
+      res = {
+        ...res,
+        status(code: number) {
+          expect(code).toBe(400);
+          return this;
+        },
+        json(result: any) {
+          expect(result.name).toBe("name should be letters and spaces only");
+        },
+      } as unknown as Response;
+
       await signUp(req, res);
     });
 
@@ -79,8 +140,6 @@ export default describe("sign up tests", () => {
 
       removeDot();
 
-      console.log(req.body, "80");
-
       res = {
         ...res,
         status(status: number) {
@@ -101,7 +160,6 @@ export default describe("sign up tests", () => {
     test("can signup with letters only username", async () => {
       req.body.username = "johndoe";
       req.body.email = "johndoe@gmail.com";
-      console.log(req.body, "103");
 
       res = {
         status(status: number) {

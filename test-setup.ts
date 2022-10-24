@@ -4,7 +4,6 @@ import { User } from "src/user/user.model";
 import { Admin } from "src/admin/admin.model";
 import { Fixtures } from "src/fixtures/fixtures.model";
 import { Links } from "src/links/links.model";
-import cuid from "cuid";
 
 const testUrl = "mongodb://localhost:27017/mpl-test";
 let db: any;
