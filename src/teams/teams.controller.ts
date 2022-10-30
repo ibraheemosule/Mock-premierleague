@@ -4,7 +4,6 @@ import { Teams } from "./teams.model";
 import mongoose from "mongoose";
 
 const getAll = (model: any) => async (req: Request, res: Response) => {
-  console.log("here");
   try {
     const data = await model
       .find({})
