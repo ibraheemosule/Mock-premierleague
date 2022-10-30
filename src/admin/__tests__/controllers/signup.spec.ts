@@ -1,6 +1,5 @@
 import controller from "../../admin.controller";
 import { faker } from "@faker-js/faker";
-import { isFunction } from "lodash";
 import { Request, Response } from "express";
 
 let req: Request, res: Response;
@@ -29,10 +28,6 @@ export default describe("sign up tests", () => {
   });
 
   describe("test sign up details", () => {
-    test("sign up controller is a function", () => {
-      expect(isFunction(signUp)).toBeTruthy();
-    });
-
     describe("invalid body details should return 400 error", () => {
       test("no name in signup body object should return 400 error", async () => {
         expect.assertions(2);
@@ -109,18 +104,24 @@ export default describe("sign up tests", () => {
     });
 
     test("username should not contain spaces", async () => {
-      req.body.username = "hello there";
+      req.body.username = "john doe";
       res.json = function (result: any) {
-        expect(typeof result.username).toBe("string");
+        expect(result.username).toBe(
+          "username should be letters, numbers and _ only"
+        );
       } as typeof res.json;
+
       await signUp(req, res);
     });
 
     test("username should not have special characters except _", async () => {
-      req.body.username = "hello.there";
+      req.body.username = "john.doe";
       res.json = function (result: any) {
-        expect(typeof result.username).toBe("string");
+        expect(result.username).toBe(
+          "username should be letters, numbers and _ only"
+        );
       } as typeof res.json;
+
       await signUp(req, res);
     });
 
@@ -129,6 +130,7 @@ export default describe("sign up tests", () => {
       res.json = function (result: any) {
         expect(typeof result.username).toBe("string");
       } as typeof res.json;
+
       await signUp(req, res);
     });
 
@@ -154,6 +156,7 @@ export default describe("sign up tests", () => {
           token: expect.any(String),
         });
       } as typeof res.json;
+
       await signUp(req, res);
     });
 

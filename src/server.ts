@@ -3,14 +3,13 @@ import express from "express";
 import connect from "./utils/db";
 import { json, urlencoded } from "body-parser";
 import morgan from "morgan";
-import { port } from "./utils";
 import teamRoutes from "./teams/teams.routes";
 import adminRoutes from "./admin/admin.routes";
 import userRoutes from "./user/user.routes";
 import fixturesRoutes from "./fixtures/fixtures.routes";
 import cors from "cors";
 
-const app = express();
+export const app = express();
 
 // middlewares
 app.use(json());

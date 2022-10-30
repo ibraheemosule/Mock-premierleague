@@ -44,7 +44,7 @@ const signUp =
 
       if (!checkUsername || !checkName || Number(body.username)) {
         return res.status(400).json({
-          username: `username should be letters and number only`,
+          username: `username should be letters, numbers and _ only`,
           name: `name should be letters and spaces only`,
         });
       }
@@ -64,7 +64,6 @@ const signUp =
 const signIn =
   (model: Model<ISignUpSchema>) => async (req: ISignIn, res: Response) => {
     if (!req.body.username || !req.body.password) return res.status(400).json();
-
     //verification of email needs to be done here console.log
     removeExtraDotsInGmail(req.body);
 
