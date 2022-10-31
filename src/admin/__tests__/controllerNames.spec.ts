@@ -1,4 +1,4 @@
-import controller from "../../admin.controller";
+import controller from "../admin.controller";
 import { isFunction } from "lodash";
 
 export default describe("contain all controllers for admin", () => {

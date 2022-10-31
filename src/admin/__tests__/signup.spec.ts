@@ -1,4 +1,4 @@
-import controller from "../../admin.controller";
+import controller from "../admin.controller";
 import { faker } from "@faker-js/faker";
 import { Request, Response } from "express";
 

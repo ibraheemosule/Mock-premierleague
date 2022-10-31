@@ -26,6 +26,25 @@ export default describe("Teams test", () => {
       };
     });
 
+    afterAll(async () => {
+      // delete all teams in the db after all the test have ran.
+      const adminAuth = { Authorization: global.admin };
+      const {
+        body: { data },
+      } = await request(app).get("/").set(adminAuth);
+
+      data.map(
+        async (team: { [key: string]: any }) =>
+          await request(app).delete(`/${team._id}`).set(adminAuth)
+      );
+
+      const {
+        body: { data: newData },
+      } = await request(app).get("/").set(adminAuth);
+
+      expect(newData.length).toBe(0);
+    });
+
     test("admin should add a new team", async () => {
       expect.assertions(2);
 

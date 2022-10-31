@@ -1,5 +1,5 @@
-import controller from "../../admin.controller";
-import { ISignIn } from "../../../utils/ts-types";
+import controller from "../admin.controller";
+import { ISignIn } from "../../utils/ts-types";
 import { Response } from "express";
 import { testSignIn } from "src/utils/test-utils";
 
