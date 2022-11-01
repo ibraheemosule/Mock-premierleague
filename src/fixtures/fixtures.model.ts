@@ -47,9 +47,7 @@ fixtureSchema.index({ homeTeam: 1, awayTeam: 1 }, { unique: true });
 fixtureSchema.pre("findOneAndUpdate", function (next) {
   const homeScore: number = this.get("homeScore"),
     awayScore: number = this.get("awayScore"),
-    status = this.get("status");
-
-  console.log(homeScore, awayScore);
+    status = this.get("status") ?? "pending";
 
   const isScoreValid =
     Number.isInteger(homeScore) && Number.isInteger(awayScore);

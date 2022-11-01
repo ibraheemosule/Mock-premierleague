@@ -70,12 +70,14 @@ const update = (model: any) => async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     if (!id) throw new Error("Cannot Find Data");
+
     const data = await model
       .findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
       .select("-createdBy -password")
       .exec();
+
     if (!data) throw new Error("No Data Found");
-    res.status(201).json({ message: "data updated", data });
+    res.status(201).json({ message: "data updated" });
   } catch (e) {
     res.status(400).json(e);
   }

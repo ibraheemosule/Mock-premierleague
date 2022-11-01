@@ -35,3 +35,7 @@ export type ITestSignIn = (signInParams: {
   res?: Response;
   account?: string;
 }) => Promise<any>;
+
+export interface IAuth {
+  Authorization: string;
+}

@@ -13,7 +13,7 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use("/", teamsRoutes);
 
-export default describe("Teams test", () => {
+export default describe("TEAMS TEST", () => {
   describe("admin functionalities", () => {
     const req = {} as unknown as Request;
     const { signIn } = adminController;
@@ -69,7 +69,7 @@ export default describe("Teams test", () => {
         .send({ name: "west ham" });
 
       expect(updateTeam.status).toBe(201);
-      expect(updateTeam.body.data.name).toBe("west ham");
+      expect(updateTeam.body.message).toBe("data updated");
     });
 
     test("admin should delete a team using it's id", async () => {
