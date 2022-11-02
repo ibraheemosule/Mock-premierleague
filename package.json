@@ -9,9 +9,8 @@
     "start:prod": "npm run build && node ./dist/src/index.js",
     "start:dev": "ts-node src/index.ts",
     "start:nodemon": "./node_modules/nodemon/bin/nodemon.js",
-    "test": "npx jest --watchAll --coverage",
     "deploy": "git add . && git commit -m Heroku && git push heroku main",
-    "test:admin": "npx jest --watchAll --detectOpenHandles --coverage --testPathPattern=ordered-tests.spec.ts"
+    "test": "npx jest --watchAll --detectOpenHandles  --testPathPattern=ordered-tests.spec.ts"
   },
   "keywords": [],
   "author": "",
