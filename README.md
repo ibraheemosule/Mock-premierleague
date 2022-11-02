@@ -15,7 +15,7 @@ Users can view teams, view fixtures.
 ## Getting Started <a name = "getting_started"></a>
 
 To get this project working on your local computer, you should install, Node.js.
-The entry point of the application is the root index.ts
+The entry point of the application is the src index.ts
 
 ### Prerequisites <a name = "prerequisites"></a>
 
