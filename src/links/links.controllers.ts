@@ -24,15 +24,21 @@ export const createLink = async (req: Request, res: Response) => {
       fixture: req.body.id.trim(),
     });
 
-    link = await link.populate({
-      path: "fixture",
-      select: "-createdBy -updatedBy",
-      populate: {
-        path: "homeTeam awayTeam",
-        model: "team",
+    link = await link.populate([
+      {
+        path: "fixture",
+        select: "-createdBy -updatedBy",
+        populate: {
+          path: "homeTeam awayTeam",
+          model: "team",
+          select: "name -_id",
+        },
+      },
+      {
+        path: "createdBy",
         select: "name -_id",
       },
-    });
+    ]);
 
     res.status(201).json({ data: link });
   } catch (e) {

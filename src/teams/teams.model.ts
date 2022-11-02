@@ -23,12 +23,12 @@ const teamsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-teamsSchema.pre("updateOne", async function (next) {
+teamsSchema.pre("findOneAndUpdate", async function (next) {
   this.set({ updatedAt: new Date() });
   next();
 });
 
-teamsSchema.post("remove", async function (doc) {
+teamsSchema.post("findOneAndRemove", async function (doc) {
   await Fixtures.deleteMany({
     $or: [{ homeTeam: doc._id }, { awayTeam: doc._id }],
   });

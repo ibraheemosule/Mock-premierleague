@@ -7,6 +7,6 @@ module.exports = {
   globalTeardown: "<rootDir>/td-jest.ts",
   setupFiles: ["<rootDir>/jest.env.js"],
   moduleDirectories: ["node_modules", __dirname],
-  // testTimeout: 360000,
+  //testTimeout: 360000,
   verbose: true,
 };

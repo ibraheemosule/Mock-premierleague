@@ -6,7 +6,7 @@ let req: Request, res: Response;
 
 const { signUp } = controller;
 
-export default describe("sign up tests", () => {
+export default describe("SIGNUP TESTS", () => {
   beforeEach(() => {
     req = {
       body: {

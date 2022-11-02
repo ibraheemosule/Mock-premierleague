@@ -7,7 +7,7 @@ let req: ISignIn, res: Response;
 
 const { signIn } = controller;
 
-export default describe("sign in tests", () => {
+export default describe("SIGNIN TEST", () => {
   beforeEach(() => {
     req = {
       body: {

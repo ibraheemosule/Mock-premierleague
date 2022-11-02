@@ -31,7 +31,7 @@ const remove = (model: any) => async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const del = await model.findByIdAndRemove(id);
+    const del = await model.findOneAndRemove({ _id: id });
     res
       .status(200)
       .json({ data: { message: "removed data", data: del.toObject() } });
