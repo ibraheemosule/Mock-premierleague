@@ -45,5 +45,22 @@ export default describe("SIGNIN TEST", () => {
 
       await testSignIn({ signIn, req, res });
     });
+
+    test("return error when signin with wrong password", async () => {
+      req.body.password = "wrongpassword";
+
+      res = {
+        status(code: number) {
+          expect(code).toBe(401);
+          return this;
+        },
+
+        json(result: { [key: string]: string }) {
+          expect(result).toBe("Invalid username or password");
+        },
+      } as unknown as Response;
+
+      await testSignIn({ signIn, req, res });
+    });
   });
 });
