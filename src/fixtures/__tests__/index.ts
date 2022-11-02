@@ -13,6 +13,7 @@ const app = express();
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use("/teams", teamsRoutes);
+app.use("/fixtures", fixturesRoutes);
 app.use("/", fixturesRoutes);
 
 const request = testRequest(app);
@@ -52,18 +53,7 @@ export default describe("FIXTURES TEST", () => {
     );
   });
 
-  describe("user functionalites", () => {
-    test("should not be able to create fixture", async () => {
-      const fixture = await request
-        .post("/")
-        .set(userAuth)
-        .send({ homeTeam: teams[0]._id, awayTeam: teams[1]._id });
-
-      expect(fixture.status).toBe(401);
-    });
-  });
-
-  describe("admin functionalities", () => {
+  describe("Admin functionalities", () => {
     test("create fixtures with teams id (team[0] vs team[1])", async () => {
       const fixture = await request
         .post("/")
@@ -146,8 +136,83 @@ export default describe("FIXTURES TEST", () => {
         expect(fixture.homeTeam).not.toEqual(null);
         expect(fixture.homeTeam).not.toEqual(null);
       });
+    });
 
-      //expect(fixture.body.data).toEqual(null);
+    test("should delete fixture", async () => {
+      const fixtures = await request.get(`/`).set(adminAuth);
+      expect(fixtures.status).toBe(200);
+
+      const delFixture = await request
+        .delete(`/${fixtures.body.data[0]._id}`)
+        .set(adminAuth);
+      expect(delFixture.status).toBe(200);
+      expect(delFixture.body.data).toMatchObject({ message: "removed data" });
+    });
+  });
+
+  describe("user functionalites", () => {
+    test("should not be able to create fixture", async () => {
+      const fixture = await request
+        .post("/")
+        .set(userAuth)
+        .send({ homeTeam: teams[0]._id, awayTeam: teams[1]._id });
+
+      expect(fixture.status).toBe(401);
+    });
+
+    test("Search all pending fixtures", async () => {
+      const fixture = await request
+        .post("/")
+        .set(adminAuth)
+        .send({ homeTeam: teams[2]._id, awayTeam: teams[1]._id });
+      expect(fixture.status).toBe(200);
+
+      const pendingFixtures = await request.get("/pending").set(userAuth);
+      expect(pendingFixtures.status).toBe(200);
+      expect(pendingFixtures.body.data[0].status).toBe("pending");
+
+      const deleteFixture = await request
+        .delete(`/${fixture.body.data._id}`)
+        .set(adminAuth);
+      expect(deleteFixture.status).toBe(200);
+    });
+
+    test("Search all completed fixtures", async () => {
+      const fixture = await request.post("/").set(adminAuth).send({
+        homeTeam: teams[2]._id,
+        awayTeam: teams[1]._id,
+        homeScore: 1,
+        awayScore: 2,
+        status: "completed",
+      });
+      expect(fixture.status).toBe(200);
+
+      const pendingFixtures = await request.get("/completed").set(userAuth);
+      expect(pendingFixtures.status).toBe(200);
+      expect(pendingFixtures.body.data[0].status).toBe("completed");
+
+      const deleteFixture = await request
+        .delete(`/${fixture.body.data._id}`)
+        .set(adminAuth);
+      expect(deleteFixture.status).toBe(200);
+    });
+
+    test("creating a fixture as completed without homeScore or awayScore should return error", async () => {
+      const homeScoreNull = await request.post("/").set(adminAuth).send({
+        homeTeam: teams[2]._id,
+        awayTeam: teams[1]._id,
+        awayScore: 2,
+        status: "completed",
+      });
+      expect(homeScoreNull.status).toBe(400);
+
+      const awayScoreNull = await request.post("/").set(adminAuth).send({
+        homeTeam: teams[2]._id,
+        awayTeam: teams[1]._id,
+        homeScore: 2,
+        status: "completed",
+      });
+      expect(awayScoreNull.status).toBe(400);
     });
   });
 
@@ -161,26 +226,11 @@ export default describe("FIXTURES TEST", () => {
 
     test("should search for team fixtures by name", async () => {
       const fixture = await request
-        .get(`/teams?search=${teams[1].name}`)
+        .get(`/fixtures/teams?search=${teams[1].name}`)
         .set(adminAuth);
 
       expect(fixture.status).toBe(200);
-      expect(fixture.body.data.name).toBeTruthy();
-    });
-
-    test("should search for team fixtures by id", async () => {
-      const fixture = await request
-        .get(`/teams?search=${teams[1]._id}`)
-        .set(adminAuth);
-
-      expect(fixture.status).toBe(200);
-      expect(fixture.body.data.name).toBeTruthy();
-    });
-
-    test("should delete fixture", async () => {
-      const allFixture = await request.get(`/`).set(adminAuth);
-      //  console.log(allFixture.body);
-      //  const fixture = await request.delete(`/${10}`).set(adminAuth)
+      expect(fixture.body.data[0].homeTeam.name).toBeTruthy();
     });
   });
 });

@@ -44,6 +44,28 @@ const fixtureSchema = new mongoose.Schema(
 
 fixtureSchema.index({ homeTeam: 1, awayTeam: 1 }, { unique: true });
 
+fixtureSchema.pre("save", function (next) {
+  const homeScore: number = this.get("homeScore"),
+    awayScore: number = this.get("awayScore"),
+    status = this.get("status") ?? "pending";
+
+  const isScoreValid =
+    Number.isInteger(homeScore) && Number.isInteger(awayScore);
+
+  if (status === "completed" && !isScoreValid) {
+    return next(
+      new Error("Status is completed but scoreline provided is invalid")
+    );
+  }
+
+  if (!/completed|pending/i.test(status)) {
+    return next(new Error("invalid status value"));
+  }
+
+  this.set({ updatedAt: new Date() });
+  next();
+});
+
 fixtureSchema.pre("findOneAndUpdate", function (next) {
   const homeScore: number = this.get("homeScore"),
     awayScore: number = this.get("awayScore"),

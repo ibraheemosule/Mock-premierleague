@@ -140,7 +140,7 @@ const search = (model: any) => async (req: Request, res: Response) => {
     let data = await model
       .find()
       .populate({
-        path: "home.info away.info",
+        path: "homeTeam awayTeam",
         model: "team",
         select: { name: 1, _id: 0 },
       })
@@ -167,7 +167,13 @@ const search = (model: any) => async (req: Request, res: Response) => {
       //   path: "updatedBy",
       //   select: { name: 1, _id: 0 },
       // })
-      .select({ home: 1, away: 1 })
+      .select({
+        homeTeam: 1,
+        awayTeam: 1,
+        homeScore: 1,
+        awayScore: 1,
+        status: 1,
+      })
       // .select({
       //   $or: [{ "home.info.name": query }, { "away.info.name": query }],
       // })
@@ -175,7 +181,7 @@ const search = (model: any) => async (req: Request, res: Response) => {
       .exec();
 
     data = data.filter(
-      (val: any) => val.home.info.name === query || val.away.info.name === query
+      (val: any) => val.homeTeam.name === query || val.awayTeam.name === query
     );
 
     res.status(200).json({ data });
