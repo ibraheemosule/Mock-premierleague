@@ -14,10 +14,9 @@ Users can view teams, view fixtures.
 
 ## Getting Started <a name = "getting_started"></a>
 
-To get this project working on your local computer, you should install, Node.js.
-The entry point of the application is the src index.ts
+To get this project working on your local computer, Pull the docker image from [here](https://hub.docker.com/repository/docker/ibraheemsulay/mock-premierleague)
 
-### Prerequisites <a name = "prerequisites"></a>
+### Prerequisites <a name= "prerequisites"></a>
 
 Project was created with typescript, hence basic knowledge of typescript and javascript is a must
 Test was written in jest. Knowledge of jest it a must if the test files is to be altered.
